@@ -1,5 +1,6 @@
 import express from "express";
 import Todo from "../models/todo.model.js";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -15,14 +16,16 @@ router.get("/", async (req, res) => {
 
 // Add a new todo
 router.post("/", async (req, res) => {
-  const todo = new Todo({
-    text: req.body.text,
-  });
   try {
-    const newTodo = await todo.save();
-    res.status(201).json(newTodo);
+    const { text } = req.body;
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "Text is required" });
+    }
+    const todo = new Todo({ text, completed: false });
+    await todo.save();
+    res.status(201).json(todo);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 });
 

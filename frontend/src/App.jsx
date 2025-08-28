@@ -1,53 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function App() {
   const [newTodo, setNewTodo] = useState("");
   const [todos, setTodos] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedText, setEditedText] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const addTodo = (e) => {
-    e.preventDefault(); // page reload ko rokta hai
-    if (!newTodo.trim()) return;
-
-    const newTask = {
-      id: Date.now(),
-      text: newTodo.trim(),
-      completed: false,
+ 
+  useEffect(() => {
+    const fetchTodos = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get("/api/todos");
+        setTodos(res.data);
+      } catch (err) {
+        alert("Failed to fetch todos");
+      }
+      setLoading(false);
     };
+    fetchTodos();
+  }, []);
 
-    setTodos([...todos, newTask]);
-    setNewTodo("");
+
+  const addTodo = async (e) => {
+    e.preventDefault();
+    if (!newTodo.trim()) return;
+    try {
+      const res = await axios.post("/api/todos", { text: newTodo.trim() });
+      setTodos([...todos, res.data]);
+      setNewTodo("");
+    } catch (err) {
+      alert("Failed to add todo");
+    }
   };
 
-  const toggleTodo = (id) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  
+  const toggleTodo = async (id, completed) => {
+    try {
+      const res = await axios.patch(`/api/todos/${id}`, { completed: !completed });
+      setTodos(todos.map((todo) => (todo._id === id ? res.data : todo)));
+    } catch (err) {
+      alert("Failed to update todo");
+    }
   };
 
-  const deleteTodo = (id) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  
+  const deleteTodo = async (id) => {
+    try {
+      await axios.delete(`/api/todos/${id}`);
+      setTodos(todos.filter((todo) => todo._id !== id));
+    } catch (err) {
+      alert("Failed to delete todo");
+    }
   };
 
+  
   const startEditing = (todo) => {
-    setEditingId(todo.id);
+    setEditingId(todo._id);
     setEditedText(todo.text);
   };
 
-  const saveEdit = (e, id) => {
+  
+  const saveEdit = async (e, id) => {
     e.preventDefault();
     if (!editedText.trim()) return;
-
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, text: editedText.trim() } : todo
-      )
-    );
-    setEditingId(null);
-    setEditedText("");
+    try {
+      const res = await axios.patch(`/api/todos/${id}`, { text: editedText.trim() });
+      setTodos(todos.map((todo) => (todo._id === id ? res.data : todo)));
+      setEditingId(null);
+      setEditedText("");
+    } catch (err) {
+      alert("Failed to edit todo");
+    }
   };
 
   return (
@@ -75,13 +101,15 @@ function App() {
         </form>
 
         <div className="mt-4 max-h-96 overflow-auto">
-          {todos.length === 0 ? (
+          {loading ? (
+            <p className="text-gray-400 text-center">Loading...</p>
+          ) : todos.length === 0 ? (
             <p className="text-gray-400 text-center">No tasks yet</p>
           ) : (
             todos.map((todo) => (
-              <div key={todo.id} className="flex items-center justify-between p-3 border-b border-gray-200">
+              <div key={todo._id} className="flex items-center justify-between p-3 border-b border-gray-200">
                 <button
-                  onClick={() => toggleTodo(todo.id)}
+                  onClick={() => toggleTodo(todo._id, todo.completed)}
                   className={`flex-shrink-0 h-6 w-6 border rounded-full flex items-center justify-center ${
                     todo.completed ? "bg-green-500 border-green-500" : "border-gray-300 hover:border-blue-400"
                   }`}
@@ -99,8 +127,8 @@ function App() {
                   )}
                 </button>
 
-                {editingId === todo.id ? (
-                  <form onSubmit={(e) => saveEdit(e, todo.id)} className="flex flex-1 mx-3 gap-2">
+                {editingId === todo._id ? (
+                  <form onSubmit={(e) => saveEdit(e, todo._id)} className="flex flex-1 mx-3 gap-2">
                     <input
                       type="text"
                       value={editedText}
@@ -131,7 +159,7 @@ function App() {
                     </button>
 
                     <button
-                      onClick={() => deleteTodo(todo.id)}
+                      onClick={() => deleteTodo(todo._id)}
                       className="p-2 text-red-500 hover:text-red-700 rounded hover:bg-red-100 transition ml-2"
                       title="Delete Task"
                     >
