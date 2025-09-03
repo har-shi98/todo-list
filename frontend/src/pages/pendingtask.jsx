@@ -1,16 +1,14 @@
 import React from "react";
-import { useTodos } from "../context/TodosContext";
-import axiosInstance from "../utils/axiosInstance";
+import { useTodos } from "../context/todosContext.jsx";
+
 
 
 const Pendingtask = () => {
-  const { todos, setTodos } = useTodos();
+  const { todos, updateTodo } = useTodos();
   const pendingTasks = todos.filter(task => !task.completed);
 
-  const markComplete = (id) => {
-    setTodos(todos.map(task =>
-      task._id === id ? { ...task, completed: true } : task
-    ));
+  const markComplete = async (id) => {
+    await updateTodo(id, { completed: true });
   };
 
   return (

@@ -1,8 +1,9 @@
-// frontend/src/context/TodosContext.jsx
-import React, { createContext, useState, useEffect } from "react";
+
+import React, { createContext, useState, useEffect, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
 const TodosContext = createContext();
+export const useTodos = () => useContext(TodosContext);
 
 export const TodosProvider = ({ children }) => {
   const [todos, setTodos] = useState([]);
