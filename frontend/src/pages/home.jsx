@@ -1,7 +1,7 @@
 import React from "react";
-import { useTodos } from "../context/TodosContext";
+import { useTodos } from "../context/todosContext.jsx"
 import { Link } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
+
 
 
 function Home() {

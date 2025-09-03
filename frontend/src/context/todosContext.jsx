@@ -1,10 +1,8 @@
-// frontend/src/context/TodosContext.jsx
-import React, { createContext, useState, useContext, useEffect } from "react";
+
+import React, { createContext, useState, useEffect, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
 const TodosContext = createContext();
-const backendURL = 'http://localhost:5000'; 
-
 export const useTodos = () => useContext(TodosContext);
 
 export const TodosProvider = ({ children }) => {
@@ -26,7 +24,7 @@ export const TodosProvider = ({ children }) => {
   // ✅ Add new todo
   const addTodo = async (text) => {
     try {
-      const res = await axiosInstance.post(backendURL + "/todos", { text });
+      const res = await axiosInstance.post("/todos", { text });
       setTodos((prev) => [...prev, res.data]); // naye todo ko list me add karo
     } catch (err) {
       console.error("❌ Failed to add todo:", err.response?.data || err.message);
@@ -36,7 +34,7 @@ export const TodosProvider = ({ children }) => {
   // ✅ Update todo (completed ya text change)
   const updateTodo = async (id, updates) => {
     try {
-      const res = await axiosInstance.patch(backendURL + `/todos/${id}`, updates);
+      const res = await axiosInstance.patch(`/todos/${id}`, updates);
       setTodos((prev) =>
         prev.map((todo) => (todo._id === id ? res.data : todo))
       );
@@ -48,7 +46,7 @@ export const TodosProvider = ({ children }) => {
   // ✅ Delete todo
   const deleteTodo = async (id) => {
     try {
-      await axiosInstance.delete(backendURL + `/todos/${id}`);
+      await axiosInstance.delete(`/todos/${id}`);
       setTodos((prev) => prev.filter((todo) => todo._id !== id));
     } catch (err) {
       console.error("❌ Failed to delete todo:", err.response?.data || err.message);
