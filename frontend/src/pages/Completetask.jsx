@@ -5,15 +5,18 @@ import axiosInstance from "../utils/axiosInstance";
 const Completetask = () => {
   const [completedTasks, setCompletedTasks] = useState([]);
 
-  const token = localStorage.getItem("token");
   useEffect(() => {
-    axiosInstance
-      .get("/todos/completed")
-      .then((res) => {
-        setCompletedTasks(res.data);
-      })
-      .catch(() => setCompletedTasks([]));
-  }, [token]);
+    const fetchTasks = () => {
+      axiosInstance
+        .get("/todos/completed")
+        .then((res) => setCompletedTasks(res.data))
+        .catch(() => setCompletedTasks([]));
+    };
+
+    fetchTasks();
+    window.addEventListener("authChanged", fetchTasks);
+    return () => window.removeEventListener("authChanged", fetchTasks);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-50">

@@ -35,6 +35,7 @@ export const TodosProvider = ({ children }) => {
   };
 
   const updateTodo = async (id, updates) => {
+    
     try {
       const res = await axiosInstance.patch(`/todos/${id}`, updates);
       setTodos((prev) => prev.map((todo) => (todo._id === id ? res.data : todo)));
@@ -54,6 +55,8 @@ export const TodosProvider = ({ children }) => {
 
   useEffect(() => {
     fetchTodos();
+    window.addEventListener("authChanged", fetchTodos);
+    return () => window.removeEventListener("authChanged", fetchTodos);
   }, []);
 
   return (
