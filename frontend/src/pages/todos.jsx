@@ -1,6 +1,6 @@
 import { useState } from "react";
 import bgImg from "../assets/bg3.webp";
-import { useTodos } from "../context/todosContext.jsx";
+import useTodos from "../context/useTodos.js";
 
 function TodoItem({
   todo,
