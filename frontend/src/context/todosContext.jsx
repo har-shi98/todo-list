@@ -1,15 +1,19 @@
+// todosContext.jsx
 
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
+// 1) Create the context first (top of file)
 const TodosContext = createContext();
-export const useTodos = () => useContext(TodosContext);
 
+// 2) Export the context (after it exists)
+export default TodosContext;
+
+// 3) Provider implementation
 export const TodosProvider = ({ children }) => {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch all todos (sirf logged-in user ke)
   const fetchTodos = async () => {
     try {
       const res = await axiosInstance.get("/todos");
@@ -21,29 +25,24 @@ export const TodosProvider = ({ children }) => {
     }
   };
 
-  // ✅ Add new todo
   const addTodo = async (text) => {
     try {
       const res = await axiosInstance.post("/todos", { text });
-      setTodos((prev) => [...prev, res.data]); // naye todo ko list me add karo
+      setTodos((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("❌ Failed to add todo:", err.response?.data || err.message);
     }
   };
 
-  // ✅ Update todo (completed ya text change)
   const updateTodo = async (id, updates) => {
     try {
       const res = await axiosInstance.patch(`/todos/${id}`, updates);
-      setTodos((prev) =>
-        prev.map((todo) => (todo._id === id ? res.data : todo))
-      );
+      setTodos((prev) => prev.map((todo) => (todo._id === id ? res.data : todo)));
     } catch (err) {
       console.error("❌ Failed to update todo:", err.response?.data || err.message);
     }
   };
 
-  // ✅ Delete todo
   const deleteTodo = async (id) => {
     try {
       await axiosInstance.delete(`/todos/${id}`);
@@ -59,14 +58,7 @@ export const TodosProvider = ({ children }) => {
 
   return (
     <TodosContext.Provider
-      value={{
-        todos,
-        loading,
-        fetchTodos,
-        addTodo,
-        updateTodo,
-        deleteTodo,
-      }}
+      value={{ todos, loading, fetchTodos, addTodo, updateTodo, deleteTodo }}
     >
       {children}
     </TodosContext.Provider>

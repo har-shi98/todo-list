@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
 
 
 const Completetask = () => {
   const [completedTasks, setCompletedTasks] = useState([]);
 
+  const token = localStorage.getItem("token");
   useEffect(() => {
-    axios
-      .get("/api/todos/completed")
+    axiosInstance
+      .get("/todos/completed")
       .then((res) => {
         setCompletedTasks(res.data);
       })
       .catch(() => setCompletedTasks([]));
-  }, []);
+  }, [token]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-50">
